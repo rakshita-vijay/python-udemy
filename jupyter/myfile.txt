@@ -1,5 +1,5 @@
-
-I am adding this linefile, and the first line 
+Hello! This is a text file, and the first line 
 This is the second line 
 This is the third line 
 I am adding this line
+I am appending this line from 028-error-handling.ipynb

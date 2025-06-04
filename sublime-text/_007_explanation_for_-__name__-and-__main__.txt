@@ -1,0 +1,9 @@
+if __name__ == "__main__":
+    # code to execute if [1]
+else:
+    # code to execute if [2]
+
+[1]: .py file is run directly and not through importing into another .py script 
+[2]: .py file is not run directly and is imported into another .py script 
+
+usually, programmers have the .py file body as a bunch of functions only, and then organize it in the (if __name__ == "__main__") block however they want - a few functions may be present in if(...) and not in else(...), and vice versa
