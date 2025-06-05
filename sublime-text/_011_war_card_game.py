@@ -146,13 +146,13 @@ def game_of_war():
 
             rounds = 0 
             howManyNeeded = 3
-            
+
             while (sum1 == sum2) and (len(player1.cardDeck) >= howManyNeeded and len(player2.cardDeck) >= howManyNeeded):
                 rounds += 1
                 if rounds > 9999:
                     print(f"Too many wars :( \nPlayer 1 has {len(player1.cardDeck)} cards \nPlayer 2 has {len(player2.cardDeck)} cards \n")
                     return "Player {} has won!".format(2 if len(player2.cardDeck) > len(player1.cardDeck) else 1) 
-
+                print("War")
                 if rounds == 1:
                     numWar = 3
                 else: 
@@ -163,7 +163,7 @@ def game_of_war():
                     p1rem.append(player1.removeCard())
                     sum1 += p1rem[len(p1rem) - 1].value
                     numWar -= 1
-                print(sum1) 
+                # print(sum1) 
                 
                 if rounds == 1:
                     numWar = 3
@@ -175,7 +175,7 @@ def game_of_war():
                     p2rem.append(player2.removeCard())
                     sum2 += p2rem[len(p2rem) - 1].value
                     numWar -= 1
-                print(sum2)
+                # print(sum2)
             print("~~~")
 
             if sum1 > sum2:
