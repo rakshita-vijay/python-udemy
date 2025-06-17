@@ -1,11 +1,9 @@
-##### import random
+import random
 import sys
 
 suits = ("Diamonds", "Hearts", "Spades", "Clubs")
 ranks = ('2', '3', '4', '5', '6', '7', '8', '9', '10', "Jack", "Queen", "King", "Ace")
 values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11}
-# valid_suits = ("diamonds", "hearts", "spades", "clubs")
-# valid_ranks = ('2', '3', '4', '5', '6', '7', '8', '9', '10', "jack", "queen", "king", "ace")
 
 class Card():  
     def __init__(self, rank, suit):    
@@ -15,14 +13,10 @@ class Card():
         self.value = values[self.rank] 
 
     def __str__(self):
-        return f"{self.rank} of {self.suit} with value: {self.value}"
-        
-    def tipe(self):
-        l = []
-        l.append(self.rank)
-        l.append(self.suit) 
-        l.append(self.value) 
-        return tuple(l) 
+        if self.rank != "Ace":
+            return f"{self.rank} of {self.suit} with value: {self.value}" 
+        else:
+            return f"{self.rank} of {self.suit}" 
 
 class Deck():
     def __init__(self): 
@@ -81,20 +75,31 @@ class Dealer():
     def __str__(self):
         return (f"Table's dealer: {self.name}")
 
+    def get_hand_value(self, cardsPara):
+        if len(cardsPara) == 0:
+            return 0
+        valu = sum(car.value for car in cardsPara)
+        num_aces = sum(1 for car in cardsPara if car.rank == "Ace")
+        while valu > 21 and num_aces > 0:
+            valu -= 10
+            num_aces -= 1
+        return valu
+
     def dealOneUpOneDown(self): 
         if len(self.dealersDeck.fullDeck) < 2:
             print("Deck exhausted. Reshuffling.") 
             self.dealersDeck = Deck()  # Resets and fills the deck again 
 
         lst = [] # [<up>, <down>]
-        totVal = 0
+        # totVal = 0
 
         if len(self.dealersDeck.fullDeck) >= 2: 
             for _ in range(2):
                 lst.append(self.dealersDeck.dealOneCard())
-                totVal += lst[-1].value 
-        print(f"Up card: {str(lst[0])}") 
-        # print(f"Down card: {str(lst[1])}") 
+                # totVal += lst[-1].value
+        
+        totVal = self.get_hand_value(lst)
+        print(f"Up card: {str(lst[0])}")  
         print(f"Total value: {totVal}") 
 
         self.dealersDealtCards.append(lst)
@@ -155,17 +160,29 @@ class Player(BankRoll):
         else: 
             return removedCards
 
+    def get_hand_value(self, cardsPara):
+        if len(cardsPara) == 0:
+            return 0
+        valu = sum(car.value for car in cardsPara)
+        num_aces = sum(1 for car in cardsPara if car.rank == "Ace")
+        while valu > 21 and num_aces > 0:
+            valu -= 10
+            num_aces -= 1
+        return valu
+
     def dealTwoUp(self, deeler): 
         if len(deeler.dealersDeck.fullDeck) < 2:
             print("Deck exhausted. Reshuffling.") 
             deeler.dealersDeck = Deck()  # Resets and fills the deck again 
 
         lst = [] # [<up>, <up>]
-        totVal = 0
+        # totVal = 0
         if len(deeler.dealersDeck.fullDeck) >= 2: 
             for _ in range(2):
                 lst.append(deeler.dealersDeck.dealOneCard())
-                totVal += lst[-1].value 
+                # totVal += lst[-1].value 
+        
+        totVal = self.get_hand_value(lst)
                 
         print(f"1st card: {str(lst[0])}") 
         print(f"2nd card: {str(lst[1])}")
@@ -205,7 +222,7 @@ class Player(BankRoll):
             if hOrS.lower() == "h":
                 car = deeler.dealersDeck.dealOneCard()
                 cs.append(car)
-                valFromHOrS += car.value 
+                valFromHOrS = self.get_hand_value(cs)
                 
                 print(f"Hit card: {str(car)}") 
                 print(f"Value after hit card: {currTotal + valFromHOrS}") 
@@ -215,7 +232,8 @@ class Player(BankRoll):
                 break
             else:
                 print("Invalid input.") 
-
+                
+        valFromHOrS = self.get_hand_value(cs)
         return cs, valFromHOrS 
 
 def game_of_blackjack():
@@ -257,7 +275,7 @@ def game_of_blackjack():
     print(deeler)
     print()
 
-    while player.balance > 0: 
+    while player.balance > 0:  
         betToPlace = 0
         check = True
         while check:
@@ -276,32 +294,32 @@ def game_of_blackjack():
         if player.placeBet(betToPlace) == True:
             cardsPlayerDealt, valOfPlayerDealtCards = player.dealTwoUp(deeler)  
             if valOfPlayerDealtCards == 21: 
-                print(f"Player {player.name} won!") 
-                player.balance += player.bets[-1]
+                print(f"Player {player.name} won!")  
+                player.balance += 2 * player.bets[-1]
                 whoWon = 'p'
             elif valOfPlayerDealtCards > 21: 
                 print(f"Player {player.name} busts!")
-                whoWon = 'n' 
+                whoWon = 'd' 
             else:
                 cardsDealerDealt, valOfDealerDealtCards = deeler.dealOneUpOneDown()
                 if valOfDealerDealtCards > valOfPlayerDealtCards:
                     print(f"Dealer {deeler.name} won!")
-                    whoWon = 'p'
+                    whoWon = 'd'
                 else: 
                     while valOfDealerDealtCards <= valOfPlayerDealtCards or valOfDealerDealtCards < 17:
                         cardsDealerDealt.append(deeler.dealersDeck.dealOneCard())
-                        valOfDealerDealtCards += cardsDealerDealt[-1].value
+                        valOfDealerDealtCards = deeler.get_hand_value(cardsDealerDealt)
                         
                         print(f"Dealer {deeler.name} has dealt (for themself): {cardsDealerDealt[-1]}")
                         print(f"Total Value: {valOfDealerDealtCards}")
                         
                         if valOfDealerDealtCards > 21:
-                            print(f"Dealer {deeler.name} busts!")
-                            player.balance += player.bets[-1]
+                            print(f"Dealer {deeler.name} busts!") 
+                            player.balance += 2 * player.bets[-1]
                             whoWon = 'p'
                     if valOfDealerDealtCards <= 21 and valOfDealerDealtCards > valOfPlayerDealtCards:
                         print(f"Dealer {deeler.name} won!") 
-                        whoWon = 'p'
+                        whoWon = 'd'
                         
             print()
             print(player)
@@ -325,13 +343,14 @@ def game_of_blackjack():
                         while True:
                             try:
                                 amt = int(input("Enter amount to deposit: "))
-                                if amt < minBet or amt > sys.maxsize:
-                                    print(f"Please enter a number between {minBet} and {sys.maxsize}")
+                                if amt + player.balance < minBet or amt + player.balance > sys.maxsize:
+                                    print(f"Please enter a number between {minBet - player.balance} and {sys.maxsize - player.balance}")
                                 else:
                                     break
                             except ValueError:
                                 print("Invalid input. Please enter a valid number:")
                         player.deposit(amt)
+                        print(player)
             else:
                 print(player)
                 break 
